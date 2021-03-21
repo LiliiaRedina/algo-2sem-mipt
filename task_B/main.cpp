@@ -1,8 +1,8 @@
 #include <iostream>
 #include <vector>
 
-int bin_search(const int &elem, const std::vector<int> &arr,
-               const std::vector<int> &length_max_elem_index, int &max_lnis) {
+int find_max_len_correct_lnis(const int& elem, const std::vector<int>& arr,
+               const std::vector<int>& length_max_elem_index, int max_lnis) {
     int left = 0;
     int right = max_lnis + 1;
     int new_bord;
@@ -19,14 +19,14 @@ int bin_search(const int &elem, const std::vector<int> &arr,
     return left;
 }
 
-int find_lnis(const std::vector<int> &arr, std::vector<int> &length_max_elem_index,
-              std::vector<int> &arr_index_prev_elem, int &index_last_elem, int &n) {
+int find_lnis(const std::vector<int>& arr, std::vector<int>& length_max_elem_index,
+              std::vector<int>& arr_index_prev_elem, int& index_last_elem) {
     int max_length_for_elem;
 
     int max_lnis = 0;
 
-    for (int i = 0; i < n; i++) {
-        max_length_for_elem = bin_search(arr[i], arr, length_max_elem_index, max_lnis);
+    for (int i = 0; i < arr.size(); i++) {
+        max_length_for_elem = find_max_len_correct_lnis(arr[i], arr, length_max_elem_index, max_lnis);
 
         length_max_elem_index[max_length_for_elem + 1] = i;
 
@@ -56,7 +56,7 @@ int main() {
     int index_last_elem = -1;
 
     std::cout << find_lnis(arr, length_max_elem_index, arr_index_prev_elem,
-                           index_last_elem, n) << '\n';
+                           index_last_elem) << '\n';
 
     std::vector<int> seq_indexes_lnis;
     int current_index = index_last_elem;
