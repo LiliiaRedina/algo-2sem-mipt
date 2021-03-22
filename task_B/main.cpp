@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 
-int find_max_len_correct_lnis(const int& elem, const std::vector<int>& arr,
+int find_max_len_correct_lnis(int elem, const std::vector<int>& arr,
                const std::vector<int>& length_max_elem_index, int max_lnis) {
     int left = 0;
     int right = max_lnis + 1;
