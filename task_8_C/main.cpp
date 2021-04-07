@@ -34,11 +34,9 @@ void out_cycle(bool& was_cycle, int beg, const std::vector<int>& parents) {
     }
 }
 
-void dfs(bool& was_cycle, const std::vector<std::vector<int>>& matrix, std::vector<Colours>& colour,
-         std::vector<int>& tin, std::vector<int>& tout, std::vector<int>& parents, int& timer,
+void dfs(bool& was_cycle, const std::vector<std::vector<int>>& matrix,
+         std::vector<Colours>& colour, std::vector<int>& parents,
          int vert, int parent_vert = -1) {
-    tin[vert] = timer++;
-
     parents[vert] = parent_vert;
 
     colour[vert] = GRAY;
@@ -50,14 +48,11 @@ void dfs(bool& was_cycle, const std::vector<std::vector<int>>& matrix, std::vect
             return;
         }
         if (colour[to] == WHITE) {
-            dfs(was_cycle, matrix, colour, tin, tout, parents, to, vert);
+            dfs(was_cycle, matrix, colour, parents, to, vert);
         }
     }
 
     colour[vert] = BLACK;
-
-    tout[vert] = timer++;
-
 }
 
 int main() {
@@ -66,9 +61,6 @@ int main() {
     std::cin >> num_vert >> num_edges;
 
     std::vector<std::vector<int>> matrix(num_vert);
-    std::vector<int> tin(num_vert);
-    std::vector<int> tout(num_vert);
-    int timer = 0;
     std::vector<Colours> colour(num_vert, WHITE);
     std::vector<int> parents(num_vert);
 
@@ -78,7 +70,7 @@ int main() {
 
     for (int i = 0; i < num_vert; ++i) {
         if (colour[i] == WHITE) {
-            dfs(was_cycle, matrix, colour, tin, tout, parents, timer, i);
+            dfs(was_cycle, matrix, colour, parents, i);
         }
     }
 
