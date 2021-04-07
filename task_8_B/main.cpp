@@ -14,7 +14,7 @@ void fill_matrix(std::vector<std::vector<int>>& matrix, int& root) {
     }
 }
 
-void ask_requests(std::vector<int>& tin, std::vector<int>& tout) {
+void ask_requests(const std::vector<int>& tin, const std::vector<int>& tout) {
     int num_requests, vert1, vert2;
 
     std::cin >> num_requests;
@@ -30,7 +30,7 @@ void ask_requests(std::vector<int>& tin, std::vector<int>& tout) {
     }
 }
 
-void dfs(int vert, std::vector<std::vector<int>>& matrix, std::vector<bool>& is_used,
+void dfs(int vert, const std::vector<std::vector<int>>& matrix, std::vector<bool>& is_used,
          std::vector<int>& tin, std::vector<int>& tout, int& timer) {
     tin[vert] = timer++;
 
