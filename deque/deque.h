@@ -47,44 +47,7 @@ public:
         right = 0;
     }
 
-    Deque(size_t size) {
-        for (size_t i = 0; i < size / block_size + 1; ++i) {
-            buffer.push_back(reinterpret_cast<T*>(new int8_t[block_size * sizeof(T)]));
-        }
-
-        for (size_t i = 0; i < size / block_size + 1; ++i) {
-            for (size_t j = 0; j < block_size; ++j) {
-                try {
-                    if (i * block_size + j < size) {
-                        new(buffer[i] + j) T();
-                    }
-                } catch (...) {
-                    for (size_t alr = 0; alr < j; ++alr) {
-                        if (i * block_size + alr < size) {
-                            buffer[i][alr].~T();
-                        }
-                    }
-
-                    for (size_t alr_buffer = 0; alr_buffer < i; ++alr_buffer) {
-                        for (size_t alr_block = 0; alr_block < block_size; ++alr_block) {
-                            buffer[alr_buffer][alr_block].~T();
-                        }
-                    }
-
-                    for (size_t alr = 0; alr < size / block_size + 1; ++alr) {
-                        delete[] reinterpret_cast<int8_t*>(buffer[alr]);
-                    }
-
-                    throw;
-                }
-            }
-        }
-
-        left = 0;
-        right = size;
-    }
-
-    Deque(size_t size, const T& value) {
+    Deque(size_t size, const T& value = T()) {
         for (size_t i = 0; i < size / block_size + 1; ++i) {
             buffer.push_back(reinterpret_cast<T*>(new int8_t[block_size * sizeof(T)]));
         }
@@ -222,9 +185,11 @@ public:
     }
 
     void pop_back() {
-        --right;
+        if (left < right) {
+            --right;
 
-        buffer[right / block_size][right % block_size].~T();
+            buffer[right / block_size][right % block_size].~T();
+        }
     }
 
     void push_front(const T& value) {
@@ -238,9 +203,11 @@ public:
     }
 
     void pop_front() {
-        buffer[left / block_size][left % block_size].~T();
+        if (left < right) {
+            buffer[left / block_size][left % block_size].~T();
 
-        ++left;
+            ++left;
+        }
     }
 
     template<bool IsConst>
@@ -270,43 +237,7 @@ public:
             return cell_in_block;
         }
 
-        common_iterator<IsConst>& operator++() {
-            num_in_buffer = (total_num() + 1) / block_size;
-            num_in_block = (total_num() + 1) % block_size;
-            cell_in_block = (*ptr_buffer)[num_in_buffer] + num_in_block;
-
-            return *this;
-        }
-
-        common_iterator<IsConst> operator++(int) {
-            common_iterator<IsConst> copy_iterator = *this;
-
-            num_in_buffer = (total_num() + 1) / block_size;
-            num_in_block = (total_num() + 1) % block_size;
-            cell_in_block = (*ptr_buffer)[num_in_buffer] + num_in_block;
-
-            return copy_iterator;
-        }
-
-        common_iterator<IsConst>& operator--() {
-            num_in_buffer = (total_num() - 1) / block_size;
-            num_in_block = (total_num() - 1) % block_size;
-            cell_in_block = (*ptr_buffer)[num_in_buffer] + num_in_block;
-
-            return *this; // why?
-        }
-
-        common_iterator<IsConst> operator--(int) {
-            common_iterator<IsConst> copy_iterator = *this;
-
-            num_in_buffer = (total_num() - 1) / block_size;
-            num_in_block = (total_num() - 1) % block_size;
-            cell_in_block = (*ptr_buffer)[num_in_buffer] + num_in_block;
-
-            return copy_iterator;
-        }
-
-        common_iterator<IsConst>& operator+=(const int delta) {
+        common_iterator<IsConst>& change_iterator(int delta) {
             num_in_buffer = (total_num() + delta) / block_size;
             num_in_block = (total_num() + delta) % block_size;
             cell_in_block = (*ptr_buffer)[num_in_buffer] + num_in_block;
@@ -314,12 +245,36 @@ public:
             return *this;
         }
 
-        common_iterator<IsConst>& operator-=(const int delta) {
-            num_in_buffer = (total_num() - delta) / block_size;
-            num_in_block = (total_num() - delta) % block_size;
-            cell_in_block = (*ptr_buffer)[num_in_buffer] + num_in_block;
+        common_iterator<IsConst>& operator++() {
+            return change_iterator(1);
+        }
 
-            return *this;
+        common_iterator<IsConst> operator++(int) {
+            common_iterator<IsConst> copy_iterator = *this;
+
+            change_iterator(1);
+
+            return copy_iterator;
+        }
+
+        common_iterator<IsConst>& operator--() {
+            return change_iterator(-1);
+        }
+
+        common_iterator<IsConst> operator--(int) {
+            common_iterator<IsConst> copy_iterator = *this;
+
+            change_iterator(-1);
+
+            return copy_iterator;
+        }
+
+        common_iterator<IsConst>& operator+=(const int delta) {
+            return change_iterator(delta);
+        }
+
+        common_iterator<IsConst>& operator-=(const int delta) {
+            return change_iterator(-delta);
         }
 
         common_iterator<IsConst> operator+(const int delta) const {
