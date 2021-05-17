@@ -179,11 +179,7 @@ public:
             reallocate();
         }
 
-        try {
-            new(buffer[right / block_size] + right % block_size) T(value);
-        } catch (...) {
-            throw;
-        }
+        new(buffer[right / block_size] + right % block_size) T(value);
 
         ++right;
     }
@@ -201,11 +197,7 @@ public:
             reallocate();
         }
 
-        try {
-            new(buffer[(left - 1) / block_size] + (left - 1) % block_size) T(value);
-        } catch (...) {
-            throw;
-        }
+        new(buffer[(left - 1) / block_size] + (left - 1) % block_size) T(value);
 
         --left;
     }
